@@ -7,7 +7,7 @@ cd /d "%~dp0"
   --windowed ^
   --name V2bX-SSH-Manager ^
   --paths src ^
-  --distpath ..\..\outputs ^
+  --distpath dist ^
   --workpath build ^
   --specpath build ^
   src\v2bx_manager\main.py

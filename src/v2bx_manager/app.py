@@ -11,9 +11,6 @@ from tkinter.scrolledtext import ScrolledText
 
 from v2bx_manager import __version__
 from v2bx_manager.config_model import (
-    CERT_MODES,
-    DNS_TYPES,
-    SUPPORTED_NODE_TYPES,
     default_config,
     ensure_xray_core,
     make_node,
@@ -62,7 +59,7 @@ class App:
         self.api_key_var = tk.StringVar()
         self.node_id_var = tk.StringVar()
         self.node_type_var = tk.StringVar(value="vless")
-        self.cert_mode_var = tk.StringVar(value="none")
+        self.cert_mode_var = tk.StringVar(value="reality")
         self.cert_domain_var = tk.StringVar(value="example.com")
         self.listen_ip_var = tk.StringVar(value="0.0.0.0")
         self.send_ip_var = tk.StringVar(value="0.0.0.0")
@@ -121,12 +118,6 @@ class App:
             ("安装/更新", self.install_v2bx),
             ("拉取配置", self.pull_config),
             ("部署节点(按脚本)", self.deploy_nodes_via_script),
-            ("上传JSON重启", self.apply_remote_config),
-            ("服务状态", self.show_status),
-            ("查看日志", self.show_logs),
-            ("回滚配置", self.rollback_config),
-            ("开放端口", self.open_firewall),
-            ("配置诊断", self.diagnose_paths),
         ]
         for index, (label, callback) in enumerate(actions):
             row, col = divmod(index, 2)
@@ -134,11 +125,11 @@ class App:
 
         hint = ttk.Label(
             frame,
-            text="常规流程：编辑节点 -> 新增到列表或更新选中节点 -> 部署节点(按脚本)。上传JSON重启是高级直接写配置。",
+            text="常规流程：连接 VPS -> 拉取配置 -> 新增或更新节点 -> 部署节点(按脚本)。",
             wraplength=240,
             foreground="#475569",
         )
-        hint.grid(row=5, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        hint.grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
     def _build_notebook(self, parent: ttk.Frame) -> None:
         notebook = ttk.Notebook(parent)
@@ -206,7 +197,6 @@ class App:
         row += 1
 
         fields = [
-            ("备注 Name", self.node_name_var),
             ("ApiHost", self.api_host_var),
             ("ApiKey", self.api_key_var),
             ("NodeID", self.node_id_var),
@@ -218,45 +208,19 @@ class App:
             row += 1
 
         ttk.Label(form, text="NodeType").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Combobox(form, textvariable=self.node_type_var, values=SUPPORTED_NODE_TYPES, width=28, state="readonly").grid(
+        self.node_type_combo = ttk.Combobox(form, textvariable=self.node_type_var, values=("vless", "shadowsocks"), width=28, state="readonly")
+        self.node_type_combo.grid(
             row=row, column=1, sticky="ew", pady=3
         )
+        self.node_type_combo.bind("<<ComboboxSelected>>", lambda _event: self.sync_cert_mode_for_node_type())
         row += 1
 
         ttk.Label(form, text="CertMode").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Combobox(form, textvariable=self.cert_mode_var, values=CERT_MODES, width=28, state="readonly").grid(
+        self.cert_mode_combo = ttk.Combobox(form, textvariable=self.cert_mode_var, values=("reality",), width=28, state="readonly")
+        self.cert_mode_combo.grid(
             row=row, column=1, sticky="ew", pady=3
         )
         row += 1
-
-        ttk.Label(form, text="证书域名").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Entry(form, textvariable=self.cert_domain_var, width=30).grid(row=row, column=1, sticky="ew", pady=3)
-        row += 1
-
-        ttk.Label(form, text="ListenIP").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Entry(form, textvariable=self.listen_ip_var, width=30).grid(row=row, column=1, sticky="ew", pady=3)
-        row += 1
-
-        ttk.Label(form, text="SendIP").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Entry(form, textvariable=self.send_ip_var, width=30).grid(row=row, column=1, sticky="ew", pady=3)
-        row += 1
-
-        ttk.Label(form, text="DNSType").grid(row=row, column=0, sticky="w", pady=3)
-        ttk.Combobox(form, textvariable=self.dns_type_var, values=DNS_TYPES, width=28, state="readonly").grid(
-            row=row, column=1, sticky="ew", pady=3
-        )
-        row += 1
-
-        checks = [
-            ("Proxy Protocol", self.enable_proxy_protocol_var),
-            ("UoT", self.enable_uot_var),
-            ("TFO", self.enable_tfo_var),
-            ("Enable DNS", self.enable_dns_var),
-            ("Reject Unknown SNI", self.reject_unknown_sni_var),
-        ]
-        for label, variable in checks:
-            ttk.Checkbutton(form, text=label, variable=variable).grid(row=row, column=0, columnspan=2, sticky="w", pady=2)
-            row += 1
 
         edit_buttons = ttk.Frame(form)
         edit_buttons.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(10, 3))
@@ -479,7 +443,7 @@ class App:
         def success(result: CommandResult) -> None:
             self.log_command_result(result)
             if result.ok:
-                self.log("节点部署流程已完成；建议点击“查看日志”确认 V2bX 已开始同步节点和用户。")
+                self.log("节点部署流程已完成；请查看输出日志中的部署后校验结果。")
 
         self.run_task("按脚本流程部署节点", lambda: self.remote.deploy_nodes_via_script(self.config), success)
 
@@ -596,9 +560,22 @@ class App:
         self.enable_tfo_var.set(bool(template.get("EnableTFO", True)))
         self.enable_dns_var.set(bool(template.get("EnableDNS", False)))
         self.reject_unknown_sni_var.set(bool(template.get("RejectUnknownSni", False)))
+        self.sync_cert_mode_for_node_type()
         note = template.get("Note")
         if note and log_note:
             self.log(f"模板说明: {note}")
+
+    def sync_cert_mode_for_node_type(self) -> None:
+        node_type = self.node_type_var.get().strip().lower()
+        if node_type == "shadowsocks":
+            values = ("none",)
+        else:
+            values = ("reality",)
+            self.node_type_var.set("vless")
+        if hasattr(self, "cert_mode_combo"):
+            self.cert_mode_combo["values"] = values
+        if self.cert_mode_var.get() not in values:
+            self.cert_mode_var.set(values[0])
 
     def on_node_selected(self, _event: tk.Event[Any]) -> None:
         selected = self.node_tree.selection()
@@ -631,6 +608,7 @@ class App:
         self.enable_tfo_var.set(bool(node.get("EnableTFO", True)))
         self.enable_dns_var.set(bool(node.get("EnableDNS", False)))
         self.reject_unknown_sni_var.set(bool(cert.get("RejectUnknownSni", False)))
+        self.sync_cert_mode_for_node_type()
 
     def clear_form(self, log_template_note: bool = True) -> None:
         self.select_tree_index(None)
@@ -651,6 +629,7 @@ class App:
         )
 
     def form_to_node(self) -> dict[str, Any] | None:
+        self.sync_cert_mode_for_node_type()
         try:
             node_id = int(self.node_id_var.get().strip())
         except ValueError:
@@ -784,7 +763,7 @@ class App:
             return
         node = nodes[self.selected_index]
         node_id = node.get("NodeID", "") if isinstance(node, dict) else ""
-        if not messagebox.askyesno("确认删除", f"只会从本地编辑区删除 NodeID {node_id}，部署或上传后才会影响远程。继续吗？"):
+        if not messagebox.askyesno("确认删除", f"只会从本地编辑区删除 NodeID {node_id}，重新部署后才会影响远程。继续吗？"):
             return
         del nodes[self.selected_index]
         self.selected_index = None

@@ -41,6 +41,8 @@ git clone https://github.com/GoSim7/v2bx-ssh-manager.git
 cd v2bx-ssh-manager
 ```
 
+也可以直接从 [Releases](https://github.com/GoSim7/v2bx-ssh-manager/releases) 下载打包好的 Windows exe。
+
 ### 2. 创建虚拟环境
 
 ```powershell
@@ -75,14 +77,13 @@ dist\V2bX-SSH-Manager.exe
 | SSH 密码连接 | 通过 Paramiko 连接 VPS，支持 keepalive 和一次自动重连 |
 | 安装/更新 V2bX | 调用上游 `install.sh` 安装或更新 V2bX 程序 |
 | 拉取远程配置 | 读取 `/etc/V2bX/config.json` 到本地编辑区 |
-| 节点本地编辑 | 新增、更新、删除 `Nodes[]` 中的 xray 节点 |
-| 模板复用 | 软件本地保存 VLESS Reality、Shadowsocks 等节点模板 |
+| 精简节点编辑 | VLESS 只填写 `ApiHost`、`ApiKey`、`NodeID`、`NodeType`；Shadowsocks 额外保留 `CertMode` |
+| 固定默认参数 | 证书域名、SNI、监听地址、DNS、TFO、UoT 等使用默认值，不在界面暴露 |
+| 模板复用 | 软件本地保存 VLESS Reality、Shadowsocks 节点模板 |
 | 按脚本部署 | 自动驱动官方 `V2bX generate` 交互流程 |
 | Reality 修正 | 部署后自动修正 VLESS Reality 节点的 `CertMode=reality` |
 | 部署后校验 | 回读远程配置，对比 `ApiHost + NodeID + NodeType`，防止脚本截断节点 |
-| 备份与回滚 | 上传或部署前备份配置，支持回滚最新备份 |
-| 日志诊断 | 查看 systemd 状态、V2bX 日志、配置路径和片段文件 |
-| 防火墙开放 | 可选执行常见防火墙开放动作 |
+| 自动备份 | 部署前自动备份远程配置文件 |
 
 ---
 
@@ -99,7 +100,7 @@ dist\V2bX-SSH-Manager.exe
     ↓
 部署节点(按脚本)
     ↓
-查看日志 / 配置诊断
+查看输出日志中的部署后校验结果
 ```
 
 部署成功时，日志中应出现类似：
@@ -174,6 +175,19 @@ data\templates.json
 
 > [!WARNING]
 > 本项目仅用于合法、授权的 VPS 与 V2bX 节点管理场景。请确保你拥有目标服务器、面板、节点和 API Key 的合法使用权限，并遵守所在地法律法规、服务商条款和上游项目许可。
+
+界面隐藏但仍会写入默认值的字段：
+
+| 字段 | 默认值 |
+|------|--------|
+| `CertDomain` | `example.com` |
+| `ListenIP` | `0.0.0.0` |
+| `SendIP` | `0.0.0.0` |
+| `DNSType` | `UseIPv4` |
+| `EnableProxyProtocol` | `false` |
+| `EnableUot` | `true` |
+| `EnableTFO` | `true` |
+| `RejectUnknownSni` | `false` |
 
 请特别注意：
 

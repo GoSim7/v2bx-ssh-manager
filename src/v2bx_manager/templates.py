@@ -35,20 +35,6 @@ BUILTIN_TEMPLATES: dict[str, dict[str, Any]] = {
         "RejectUnknownSni": False,
         "Note": "通用 Shadowsocks 节点模板。",
     },
-    "VLESS TLS HTTP Cert (xray)": {
-        "NodeType": "vless",
-        "CertMode": "http",
-        "CertDomain": "example.com",
-        "ListenIP": "0.0.0.0",
-        "SendIP": "0.0.0.0",
-        "EnableProxyProtocol": False,
-        "EnableUot": True,
-        "EnableTFO": True,
-        "EnableDNS": False,
-        "DNSType": "UseIPv4",
-        "RejectUnknownSni": False,
-        "Note": "HTTP ACME 证书模式，需要域名解析到 VPS 且 80 端口可用。",
-    },
 }
 
 

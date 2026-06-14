@@ -5,7 +5,7 @@ cd /d "%~dp0"
   --noconfirm ^
   --onefile ^
   --windowed ^
-  --name V2bX-SSH-Manager ^
+  --name Bananas_V2bx ^
   --paths src ^
   --distpath dist ^
   --workpath build ^

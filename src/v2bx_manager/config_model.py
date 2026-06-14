@@ -352,10 +352,10 @@ def node_summary(index: int, node: dict[str, Any]) -> tuple[str, str, str, str, 
     cert = node.get("CertConfig", {}) if isinstance(node.get("CertConfig"), dict) else {}
     return (
         str(index),
-        str(node.get("Core", "")),
-        str(node.get("NodeType", "")),
-        str(node.get("NodeID", "")),
         str(node.get("ApiHost", "")),
+        str(node.get("ApiKey", "")),
+        str(node.get("NodeID", "")),
+        str(node.get("NodeType", "")),
         str(cert.get("CertMode", "")),
     )
 

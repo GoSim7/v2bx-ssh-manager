@@ -1,235 +1,134 @@
-# V2bX SSH Manager
+# Bananas_V2bx
 
-**AI-assisted V2bX Windows desktop deployment tool, powered by GPT-5.5**
+![Bananas_V2bx banner](assets/banner.svg)
+
+**Windows 桌面版 V2bX SSH 快捷部署工具，基于 [wyx2685/V2bX](https://github.com/wyx2685/V2bX)，由 GPT-5.5 辅助梳理脚本流程与产品实现。**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Windows](https://img.shields.io/badge/Windows-Desktop-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 [![V2bX](https://img.shields.io/badge/Based%20on-wyx2685%2FV2bX-22c55e)](https://github.com/wyx2685/V2bX)
-[![SSH](https://img.shields.io/badge/SSH-Password%20Login-0f766e)](#)
-[![Xray](https://img.shields.io/badge/Core-Xray-f97316)](#)
+[![SSH](https://img.shields.io/badge/SSH-Password%20Login-34c759)](#)
+[![Core](https://img.shields.io/badge/Core-Xray-facc15)](#)
 
-简体中文 | [V2bX](https://github.com/wyx2685/V2bX) | [V2bX Script](https://github.com/wyx2685/V2bX-script)
+## 项目定位
 
-快速开始 • 核心功能 • 部署流程 • 节点配置 • 安全说明 • 致谢
+Bananas_V2bx 是一个给 Windows 使用的桌面工具，用 SSH 密码连接单台 VPS，自动调用 V2bX 官方安装脚本和 `V2bX generate` 交互流程，减少手动在命令行里一步一步输入节点配置时出错的概率。
 
----
+它不替代 V2bX，也不内置代理核心。它只做一件事：把你在表格里填好的节点，按 V2bX 脚本真实流程部署到 `/etc/V2bX/config.json`。
 
-## 项目简介
+当前重点支持：
 
-> [!IMPORTANT]
-> V2bX SSH Manager 是一个面向 Windows 桌面的 V2bX VPS 快捷部署与配置工具。它不替代 V2bX，也不内置代理核心；它通过 SSH 连接单台 VPS，自动调用上游 V2bX 安装脚本和 `V2bX generate` 配置流程，帮助操作者减少手工输入出错。
-
-本项目适合需要频繁管理 V2bX 节点、但又不想反复在 SSH 命令行里一步一步输入配置的场景。当前重点支持：
-
+- 单台 Windows 电脑管理单台 VPS
+- SSH 密码登录
 - `xray` core
 - `VLESS Reality`
 - `Shadowsocks`
-- 单台 Windows 电脑管理单台 VPS
-- SSH 密码登录
-- 本地模板保存与复用
+- 表格化节点列表：新增、删除选中、复制选中、清空列表
+- 拉取远程配置后直接在列表里修改，不再使用右侧节点表单
 
-项目基于 [wyx2685/V2bX](https://github.com/wyx2685/V2bX) 生态设计，并由 GPT-5.5 辅助完成产品逻辑梳理、脚本流程分析和代码实现。
+## 下载和运行
 
----
+可以直接从 [Releases](https://github.com/GoSim7/Bananas_V2bx/releases) 下载打包好的 `Bananas_V2bx.exe`。
 
-## 快速开始
-
-### 1. 克隆项目
+本地开发运行：
 
 ```powershell
-git clone https://github.com/GoSim7/v2bx-ssh-manager.git
-cd v2bx-ssh-manager
-```
-
-也可以直接从 [Releases](https://github.com/GoSim7/v2bx-ssh-manager/releases) 下载打包好的 Windows exe。
-
-### 2. 创建虚拟环境
-
-```powershell
+git clone https://github.com/GoSim7/Bananas_V2bx.git
+cd Bananas_V2bx
 python -m venv .venv
 .\.venv\Scripts\pip install -r requirements.txt
-```
-
-### 3. 运行桌面程序
-
-```powershell
 .\run.bat
 ```
 
-### 4. 构建 Windows exe
+打包 exe：
 
 ```powershell
 .\build.bat
 ```
 
-构建完成后，程序会输出到：
+输出文件：
 
 ```text
-dist\V2bX-SSH-Manager.exe
+dist\Bananas_V2bx.exe
 ```
 
----
-
-## 核心功能
-
-| 功能 | 说明 |
-|------|------|
-| SSH 密码连接 | 通过 Paramiko 连接 VPS，支持 keepalive 和一次自动重连 |
-| 安装/更新 V2bX | 调用上游 `install.sh` 安装或更新 V2bX 程序 |
-| 拉取远程配置 | 读取 `/etc/V2bX/config.json` 到本地编辑区 |
-| 精简节点编辑 | VLESS 只填写 `ApiHost`、`ApiKey`、`NodeID`、`NodeType`；Shadowsocks 额外保留 `CertMode` |
-| 固定默认参数 | 证书域名、SNI、监听地址、DNS、TFO、UoT 等使用默认值，不在界面暴露 |
-| 模板复用 | 软件本地保存 VLESS Reality、Shadowsocks 节点模板 |
-| 按脚本部署 | 自动驱动官方 `V2bX generate` 交互流程 |
-| Reality 修正 | 部署后自动修正 VLESS Reality 节点的 `CertMode=reality` |
-| 部署后校验 | 回读远程配置，对比 `ApiHost + NodeID + NodeType`，防止脚本截断节点 |
-| 自动备份 | 部署前自动备份远程配置文件 |
-
----
-
-## 推荐工作流
+## 使用流程
 
 ```text
 连接 / 测试 SSH
-    ↓
-检测安装 或 安装/更新 V2bX
-    ↓
-拉取配置
-    ↓
-新增到列表 / 更新选中节点
-    ↓
-部署节点(按脚本)
-    ↓
-查看输出日志中的部署后校验结果
+  -> 检测安装 或 安装/更新 V2bX
+  -> 拉取配置
+  -> 在节点表格里新增、复制或编辑节点
+  -> 部署节点
+  -> 查看输出日志里的部署后校验结果
 ```
 
-部署成功时，日志中应出现类似：
+表格字段：
 
-```text
-部署后校验通过：6 个节点已写入 /etc/V2bX/config.json。
-```
+| 字段 | 说明 |
+|---|---|
+| `ApiHost` | 面板地址，例如 `https://panel.example.com` |
+| `ApiKey` | 面板 API Key |
+| `NodeID` | 面板里的真实节点 ID |
+| `NodeType` | 目前支持 `vless` 或 `shadowsocks` |
+| `CertMode` | VLESS 自动使用 `reality`，Shadowsocks 自动使用 `none` |
 
-如果出现：
+其他字段使用固定默认值，例如 `ListenIP=0.0.0.0`、`SendIP=0.0.0.0`、`DNSType=UseIPv4`、`EnableUot=true`、`EnableTFO=true`、`CertDomain=example.com`。
 
-```text
-Get node info failed
-server is not exist
-```
+## 为什么这样设计
 
-通常表示 `ApiHost + ApiKey + NodeID + NodeType` 与面板中的真实节点不匹配。
+V2bX 官方脚本本身是交互式的，多节点时需要连续回答面板地址、Key、NodeID、协议类型、TLS/Reality 选择等问题。手动输入一旦错一项，就可能导致节点缺失、配置被覆盖、服务反复重启。
 
----
+Bananas_V2bx 把这个过程变成一个可检查的表格：
 
-## 支持的节点类型
+- 先拉取现有远程配置，避免新增时误覆盖已有节点
+- 一行就是一个 V2bX `Nodes[]` 对象
+- 复制节点时自动给新行分配下一个 `NodeID`
+- 部署前检查 `ApiHost + ApiKey + NodeID + NodeType`
+- 部署后回读远程配置，核对表格节点和远程节点是否一致
+
+## 支持的节点
 
 | Core | NodeType | CertMode | 部署方式 |
-|------|----------|----------|----------|
+|---|---|---|---|
 | xray | vless | reality | 官方 `V2bX generate` + Reality 修正 |
 | xray | shadowsocks | none | 官方 `V2bX generate` |
 
-> [!NOTE]
-> V2bX 的本地 `config.json` 只保存面板连接信息。真实端口、Reality 参数、用户列表等通常由面板 API 返回，因此节点是否可用还取决于面板中的节点配置是否存在、类型是否匹配、API Key 是否有权限。
-
----
-
-## 配置文件说明
-
-默认操作的远程配置文件：
+如果日志出现：
 
 ```text
-/etc/V2bX/config.json
+server is not exist
 ```
 
-核心结构：
+通常不是 VPS 防火墙问题，而是面板中不存在这个 `NodeID`，或者 `ApiHost`、`ApiKey`、`NodeType` 和面板真实节点不匹配。
 
-```json
-{
-  "Log": {},
-  "Cores": [],
-  "Nodes": []
-}
-```
+## 安全说明
 
-关键原则：
+请只在你有权限管理的 VPS、面板和节点上使用本工具。`ApiKey`、SSH 密码、面板地址都属于敏感信息，不要公开截图或提交到仓库。
 
-- 一个面板节点对应 `Nodes[]` 中一个对象
-- 不要把多个 `NodeID` 合并到同一条节点配置
-- 多个面板地址可以共存于同一个 `Nodes[]`
-- `ApiKey` 属于敏感信息，不建议截图或公开粘贴
-
----
-
-## 本地数据
-
-用户模板保存在软件本地：
+部署前工具会备份远程配置，备份路径类似：
 
 ```text
-data\templates.json
+/etc/V2bX/config.json.bak-YYYYMMDD-HHMMSS
 ```
-
-该目录不会提交到 GitHub，用于避免把个人模板、面板地址或密钥误传到远程仓库。
-
----
-
-## 安全与合规声明
-
-> [!WARNING]
-> 本项目仅用于合法、授权的 VPS 与 V2bX 节点管理场景。请确保你拥有目标服务器、面板、节点和 API Key 的合法使用权限，并遵守所在地法律法规、服务商条款和上游项目许可。
-
-界面隐藏但仍会写入默认值的字段：
-
-| 字段 | 默认值 |
-|------|--------|
-| `CertDomain` | `example.com` |
-| `ListenIP` | `0.0.0.0` |
-| `SendIP` | `0.0.0.0` |
-| `DNSType` | `UseIPv4` |
-| `EnableProxyProtocol` | `false` |
-| `EnableUot` | `true` |
-| `EnableTFO` | `true` |
-| `RejectUnknownSni` | `false` |
-
-请特别注意：
-
-- 不要公开粘贴真实 `ApiKey`
-- 不要把 SSH 密码写入源码
-- 公开仓库前确认 `data/`、`build/`、`.venv/`、日志和打包文件没有被提交
-- 如果面板返回 `server is not exist`，应优先检查面板里的 `NodeID`、节点类型和 API Key 权限
-
----
 
 ## 开发结构
 
 ```text
-v2bx-ssh-manager
-├── src/v2bx_manager/
-│   ├── app.py          # Tkinter GUI
-│   ├── remote_ops.py   # V2bX 远程 SSH 操作
-│   ├── ssh_client.py   # Paramiko SSH 封装
-│   ├── config_model.py # config.json 数据模型与校验
-│   ├── templates.py    # 本地模板存储
-│   └── main.py         # 程序入口
-├── run.bat
-├── build.bat
-└── requirements.txt
+Bananas_V2bx
+├─ src/v2bx_manager/
+│  ├─ app.py          # Tkinter 桌面界面
+│  ├─ remote_ops.py   # V2bX 远程 SSH 操作
+│  ├─ ssh_client.py   # Paramiko SSH 封装
+│  ├─ config_model.py # config.json 数据模型与校验
+│  └─ main.py         # 程序入口
+├─ assets/
+│  └─ banner.svg
+├─ run.bat
+├─ build.bat
+└─ requirements.txt
 ```
-
----
-
-## 相关项目
-
-| 项目 | 说明 |
-|------|------|
-| [wyx2685/V2bX](https://github.com/wyx2685/V2bX) | 上游 V2bX 节点服务端 |
-| [wyx2685/V2bX-script](https://github.com/wyx2685/V2bX-script) | 上游安装与管理脚本 |
-| [XTLS/Xray-core](https://github.com/XTLS/Xray-core) | Xray 核心 |
-| [paramiko/paramiko](https://github.com/paramiko/paramiko) | Python SSH 库 |
-| [pyinstaller/pyinstaller](https://github.com/pyinstaller/pyinstaller) | Windows exe 打包 |
-
----
 
 ## 致谢
 
-感谢 [wyx2685/V2bX](https://github.com/wyx2685/V2bX) 及其脚本项目提供 V2bX 节点服务端和安装管理流程。本项目是在实际 VPS 节点部署、配置排错和多节点自动化场景中整理出来的桌面辅助工具。
-
-如果这个项目帮你减少了 SSH 手工配置出错，欢迎 Star。
+感谢 [wyx2685/V2bX](https://github.com/wyx2685/V2bX) 和 [wyx2685/V2bX-script](https://github.com/wyx2685/V2bX-script) 提供 V2bX 服务端与安装管理脚本。本项目是在真实 VPS 节点部署、配置排错和多节点自动化场景中整理出来的桌面辅助工具。

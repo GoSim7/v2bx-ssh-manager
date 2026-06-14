@@ -1,3 +1,3 @@
-"""V2bX SSH Manager package."""
+"""Bananas_V2bx package."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

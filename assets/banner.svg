@@ -1,0 +1,31 @@
+<svg width="1280" height="420" viewBox="0 0 1280 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaffef"/>
+      <stop offset="0.55" stop-color="#d7f8df"/>
+      <stop offset="1" stop-color="#f9ffe7"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="168" y1="76" x2="1124" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#f4fff7" stop-opacity="0.52"/>
+    </linearGradient>
+    <filter id="softShadow" x="110" y="26" width="1060" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#11823d" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="420" fill="url(#bg)"/>
+  <circle cx="1030" cy="72" r="158" fill="#34c759" opacity="0.14"/>
+  <circle cx="238" cy="346" r="170" fill="#facc15" opacity="0.18"/>
+  <g filter="url(#softShadow)">
+    <rect x="150" y="70" width="980" height="280" rx="34" fill="url(#glass)" stroke="#b7dfc4" stroke-width="1.5"/>
+  </g>
+  <path d="M245 233C315 298 441 305 530 253C548 242 568 263 554 280C466 389 273 355 186 253C173 238 196 218 211 232C222 242 232 244 245 233Z" fill="#facc15"/>
+  <path d="M235 222C311 277 427 280 513 234" stroke="#8a6d00" stroke-opacity="0.42" stroke-width="14" stroke-linecap="round"/>
+  <path d="M194 245C176 235 165 219 161 200" stroke="#2f5b38" stroke-width="14" stroke-linecap="round"/>
+  <rect x="625" y="146" width="345" height="24" rx="12" fill="#34c759" opacity="0.22"/>
+  <rect x="625" y="190" width="260" height="24" rx="12" fill="#34c759" opacity="0.18"/>
+  <rect x="625" y="234" width="306" height="24" rx="12" fill="#34c759" opacity="0.14"/>
+  <text x="610" y="150" fill="#173b2f" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">Bananas_V2bx</text>
+  <text x="614" y="216" fill="#476657" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="500">Windows desktop SSH deployment table for V2bX</text>
+  <text x="614" y="266" fill="#137a4c" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">VLESS Reality · Shadowsocks · Xray</text>
+</svg>
